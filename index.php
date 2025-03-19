@@ -1,3 +1,16 @@
+<?php
+session_start();
+
+// Handle logout
+if (isset($_POST['logout'])) {
+    session_unset();  // Clear session variables
+    session_destroy(); // Destroy session
+
+    // Redirect back to the login page
+    header("Location: index.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +19,27 @@
     <title>Login Page</title>
 </head>
 <body>
-    <h2>Login</h2>
+    <h1>This is the Login Page</h1>
+
+    <?php
+    // Show logout message if it exists
+    if (isset($_SESSION['logout_message'])) {
+        echo "<p>" . $_SESSION['logout_message'] . "</p>";
+        unset($_SESSION['logout_message']); // Clear the message after displaying
+    }
+
+    if (isset($_POST['login'])) {
+        // Get input values safely
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
+        $password = $_POST['password']; // Should be hashed if stored in a database
+
+        // Store username in session (but NOT password)
+        $_SESSION['username'] = $username;
+
+        echo "<p>Login successful! Welcome, " . $_SESSION['username'] . ".</p>";
+    }
+    ?>
+
     <form action="" method="post">
         <label for="username">Username:</label>
         <input type="text" name="username" required><br>
@@ -17,23 +50,8 @@
         <button type="submit" name="login">Login</button>
     </form>
 
-    <?php
-    if (isset($_POST['login'])) {
-        // Get input values safely
-        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_SPECIAL_CHARS);
-        $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_SPECIAL_CHARS);
-
-        // Dummy credentials (Replace with database check)
-        $valid_username = "admin";
-        $valid_password = "12345"; // In real apps, use password hashing
-
-        // Verify login credentials
-        if ($username === $valid_username && $password === $valid_password) {
-            echo "<p>✅ Login successful! Welcome, <strong>$username</strong>.</p>";
-        } else {
-            echo "<p>❌ Invalid username or password.</p>";
-        }
-    }
-    ?>
+    <form action="" method="post">
+        <button type="submit" name="logout">Logout</button>
+    </form>
 </body>
 </html>
