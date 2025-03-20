@@ -4,6 +4,10 @@ require_once 'db.php'; // Include database connection
 try {
     // Fetch tasks using MySQLi
     $result = $conn->query("SELECT * FROM tasks ORDER BY created_at DESC");
+    
+    if (!$result) {
+        throw new Exception($conn->error);
+    }
 
     // Fetch all rows as an associative array
     $tasks = $result->fetch_all(MYSQLI_ASSOC);
@@ -29,12 +33,20 @@ try {
     </form>
 
     <ul>
-        <?php foreach ($tasks as $task): ?>
-            <li>
-                <?= htmlspecialchars($task['task'], ENT_QUOTES, 'UTF-8') ?>
-                <a href="deltask.php?id=<?= urlencode($task['id']) ?>">❌</a>
-            </li>
-        <?php endforeach; ?>
+        <?php if (empty($tasks)): ?>
+            <li>No tasks found. Add a new task above!</li>
+        <?php else: ?>
+            <?php foreach ($tasks as $task): ?>
+                <li class="<?= $task['is_completed'] ? 'completed' : '' ?>">
+                    <form action="updatetask.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="id" value="<?= $task['id'] ?>">
+                        <input type="checkbox" onchange="this.form.submit()" <?= $task['is_completed'] ? 'checked' : '' ?>>
+                    </form>
+                    <?= htmlspecialchars($task['task']) ?>
+                    <a href="deltask.php?id=<?= $task['id'] ?>" onclick="return confirm('Are you sure you want to delete this task?')">❌</a>
+                </li>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </ul>
 </body>
 </html>

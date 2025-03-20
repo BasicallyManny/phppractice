@@ -36,3 +36,9 @@ a {
     text-decoration: none;
     color: red;
 }
+
+
+.completed {
+    text-decoration: line-through;
+    color: gray;
+}
